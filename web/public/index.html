@@ -83,12 +83,7 @@
 <!-- HERO -->
 <section class="hero">
   <div class="container text-center">
-    <h1 class="display-2 fw-bold mb-3" id="hero-title"
-        hx-get="https://tuyyo-api.sashka-desire.workers.dev/api/translations/en"
-        hx-trigger="load"
-        hx-swap="innerHTML"
-        hx-target="#hero-title"
-        hx-vars="'key':'hero_title'">
+    <h1 class="display-2 fw-bold mb-3" id="hero-title">
       Sea. Sun. Freedom.
     </h1>
     <p class="lead mb-4" id="hero-subtitle">Explore Costa Blanca from the Water</p>
@@ -270,7 +265,7 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://unpkg.com/htmx.org@2.0.3"></script>
+<script src="https://unpkg.com/htmx.org@2.0.3?v=3?v=2"></script>
 <script>
   // HTMX: рендеринг інвентарю
   document.body.addEventListener('htmx:afterSwap', (e) => {
@@ -325,14 +320,7 @@
       } catch (err) { console.error(err); }
     }
 
-    if (e.detail.target.id === 'hero-title') {
-      try {
-        const data = JSON.parse(e.detail.xhr.response);
-        e.detail.target.textContent = data.hero_title || 'Sea. Sun. Freedom.';
-        document.getElementById('hero-subtitle').textContent =
-          data.hero_subtitle || 'Explore Costa Blanca from the Water';
-      } catch (err) {}
-    }
+    // hero-title більше не використовує HTMX
   });
 </script>
 </body>

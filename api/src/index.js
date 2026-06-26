@@ -27,7 +27,7 @@ const app = new Hono();
 app.use('*', logger());
 
 // CORS — дозволяємо всі необхідні домени
-app.use('/api/*', cors({
+app.use('*', cors({
   origin: (origin, c) => {
     const allowed = [
       'https://tuyyo.com',
@@ -37,11 +37,9 @@ app.use('/api/*', cors({
       'http://localhost:3000',
       'http://127.0.0.1:3000'
     ];
-    // Дозволяємо будь-який origin з цих доменів
     if (origin && allowed.some(d => origin.startsWith(d.replace('://', '://')))) {
       return origin;
     }
-    // Для інших — повертаємо перший дозволений (не блокуємо)
     return allowed[0];
   },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

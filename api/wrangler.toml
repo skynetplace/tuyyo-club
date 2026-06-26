@@ -16,4 +16,3 @@ database_id = "b1f20220-fb85-477e-ae01-241c7e49ef31"
 # [[r2_buckets]]
 # binding = "R2"
 # bucket_name = "tuyyo-media"
-# ⚠️ Розкоментувати після активації R2 через Cloudflare Dashboard
