@@ -1,0 +1,12 @@
+{
+  "name": "tuyyo-web",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve public -l 3000",
+    "deploy": "wrangler pages deploy public --project-name=tuyyo-club"
+  },
+  "devDependencies": {
+    "wrangler": "^3.60.0"
+  }
+}

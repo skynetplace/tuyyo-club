@@ -1,0 +1,17 @@
+{
+  "name": "tuyyo-api",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate": "wrangler d1 execute tuyyo-db-prod --remote --file=./db/schema.sql"
+  },
+  "dependencies": {
+    "hono": "^4.4.0",
+    "stripe": "^15.0.0"
+  },
+  "devDependencies": {
+    "wrangler": "^3.60.0"
+  }
+}

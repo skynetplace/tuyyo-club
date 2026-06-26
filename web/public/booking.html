@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Your SUP — TUYYO CLUB</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root { --tuyyo-turquoise: #40E0D0; --tuyyo-deep-blue: #003366; }
+    body { background: #f5f9fc; }
+    .btn-tuyyo { background: var(--tuyyo-turquoise); color: var(--tuyyo-deep-blue); font-weight: 600; }
+    .step-indicator {
+      display: flex; justify-content: space-between; margin-bottom: 2rem;
+    }
+    .step {
+      flex: 1; text-align: center; padding: 1rem;
+      background: white; border-radius: 12px; margin: 0 4px;
+      border: 2px solid #eee;
+    }
+    .step.active { border-color: var(--tuyyo-turquoise); background: #e6fffc; }
+    .step.done { background: var(--tuyyo-deep-blue); color: white; }
+    .summary-card {
+      position: sticky; top: 80px;
+      background: white; border-radius: 16px; padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .htmx-indicator { display: none; }
+    .htmx-request .htmx-indicator { display: inline-block; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-white shadow-sm mb-4">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/">🏄 TUYYO CLUB</a>
+    <a href="/" class="btn btn-outline-secondary btn-sm">← Back</a>
+  </div>
+</nav>
+
+<div class="container pb-5">
+  <h1 class="fw-bold mb-4">Book Your SUP Adventure</h1>
+
+  <!-- Step Indicator -->
+  <div class="step-indicator">
+    <div class="step active" id="step-ind-1"><strong>1</strong><br><small>Date & Location</small></div>
+    <div class="step" id="step-ind-2"><strong>2</strong><br><small>Select Boards</small></div>
+    <div class="step" id="step-ind-3"><strong>3</strong><br><small>Your Details</small></div>
+    <div class="step" id="step-ind-4"><strong>4</strong><br><small>Payment</small></div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Main Form Area -->
+    <div class="col-lg-8">
+      <div id="booking-wizard" class="bg-white rounded-4 p-4 shadow-sm">
+        <!-- Крок 1 завантажується через HTMX -->
+        <div hx-get="https://api.tuyyo.com/api/booking/step-1"
+             hx-trigger="load"
+             hx-swap="innerHTML">
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2">Loading...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky Summary -->
+    <div class="col-lg-4">
+      <div class="summary-card">
+        <h5 class="fw-bold mb-3"><i class="bi bi-receipt"></i> Booking Summary</h5>
+        <div id="summary-content">
+          <p class="text-muted small">Fill in the form to see your total.</p>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-between">
+          <strong>Total:</strong>
+          <strong id="summary-total" class="text-primary fs-4">€0</strong>
+        </div>
+        <small class="text-muted d-block mt-2">+ 150€ refundable deposit per board</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/htmx.org@2.0.3"></script>
+<script>
+  const API = 'https://api.tuyyo.com/api';
+  const state = {
+    step: 1,
+    date: null,
+    location_id: null,
+    duration_type: '2h',
+    items: [],
+    customer: {},
+    total: 0
+  };
+
+  // Завантаження кроку 1 при старті
+  document.body.addEventListener('htmx:afterSwap', async (e) => {
+    if (e.detail.target.id === 'booking-wizard' && state.step === 1) {
+      // Рендеримо форму кроку 1
+      const locRes = await fetch(`${API}/locations`).then(r => r.json());
+      e.detail.target.innerHTML = `
+        <h3>Step 1: Date & Location</h3>
+        <div class="mb-3">
+          <label class="form-label">Start Date</label>
+          <input type="date" id="inp-date" class="form-control"
+                 min="${new Date(Date.now() + 86400000).toISOString().slice(0,10)}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Start Time</label>
+          <select id="inp-time" class="form-select">
+            ${Array.from({length: 13}, (_, i) => i + 7).map(h =>
+              `<option value="${String(h).padStart(2,'0')}:00">${String(h).padStart(2,'0')}:00</option>`
+            ).join('')}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Duration</label>
+          <select id="inp-duration" class="form-select">
+            <option value="2h">2 Hours</option>
+            <option value="half_day">Half Day (~5h)</option>
+            <option value="full_day">Full Day (~10h)</option>
+            <option value="multi_day">Multiple Days</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Delivery Location</label>
+          <select id="inp-location" class="form-select">
+            ${locRes.map(l => `<option value="${l.id}" data-fee="${l.delivery_fee}">${l.name} (+${l.delivery_fee}€)</option>`).join('')}
+          </select>
+        </div>
+        <button class="btn btn-tuyyo btn-lg w-100" onclick="goStep2()">
+          Next: Select Boards <i class="bi bi-arrow-right"></i>
+        </button>
+      `;
+    }
+  });
+
+  async function goStep2() {
+    state.date = document.getElementById('inp-date').value;
+    state.duration_type = document.getElementById('inp-duration').value;
+    state.location_id = parseInt(document.getElementById('inp-location').value);
+    const time = document.getElementById('inp-time').value;
+    state.start_time = `${state.date}T${time}:00`;
+
+    if (!state.date) { alert('Please select a date'); return; }
+
+    state.step = 2;
+    updateStepIndicator();
+
+    const invRes = await fetch(`${API}/inventory`).then(r => r.json());
+    const wizard = document.getElementById('booking-wizard');
+
+    let html = '<h3>Step 2: Select Your Boards</h3>';
+    for (const item of invRes) {
+      const availRes = await fetch(
+        `${API}/availability?date=${state.date}&inventory_id=${item.id}&duration_type=${state.duration_type}`
+      ).then(r => r.json());
+
+      const priceKey = {
+        '2h': 'price_2h', 'half_day': 'price_half_day',
+        'full_day': 'price_full_day', 'multi_day': 'price_multi_day'
+      }[state.duration_type];
+
+      html += `
+        <div class="border rounded-3 p-3 mb-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="mb-1">${item.model_name}</h5>
+              <small class="text-muted">Max ${item.max_weight_kg}kg · ${item.price_2h}€/2h</small>
+              <div class="mt-1">
+                <span class="badge ${availRes.available > 0 ? 'bg-success' : 'bg-danger'}">
+                  ${availRes.available} available
+                </span>
+              </div>
+            </div>
+            <div class="text-end">
+              <div class="fw-bold fs-4 text-primary">${item[priceKey]}€</div>
+              <div class="input-group" style="width: 120px;">
+                <button class="btn btn-outline-secondary" onclick="changeQty(${item.id}, -1, ${availRes.available})">−</button>
+                <input type="number" id="qty-${item.id}" class="form-control text-center" value="0" min="0" max="${availRes.available}" readonly>
+                <button class="btn btn-outline-secondary" onclick="changeQty(${item.id}, 1, ${availRes.available})">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    html += `
+      <button class="btn btn-tuyyo btn-lg w-100 mt-3" onclick="goStep3()">
+        Next: Your Details <i class="bi bi-arrow-right"></i>
+      </button>
+    `;
+    wizard.innerHTML = html;
+  }
+
+  function changeQty(id, delta, max) {
+    const inp = document.getElementById(`qty-${id}`);
+    const newVal = Math.max(0, Math.min(max, parseInt(inp.value) + delta));
+    inp.value = newVal;
+    updateSummary();
+  }
+
+  function updateSummary() {
+    // Оновлення summary — спрощено
+    document.getElementById('summary-total').textContent = '€' + state.total.toFixed(2);
+  }
+
+  async function goStep3() {
+    // Збираємо items
+    state.items = [];
+    document.querySelectorAll('[id^="qty-"]').forEach(inp => {
+      const qty = parseInt(inp.value);
+      if (qty > 0) {
+        state.items.push({
+          inventory_id: parseInt(inp.id.replace('qty-', '')),
+          quantity: qty
+        });
+      }
+    });
+
+    if (state.items.length === 0) { alert('Select at least one board'); return; }
+
+    // Розрахунок вартості
+    const calcRes = await fetch(`${API}/booking/calculate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: state.items,
+        location_id: state.location_id,
+        duration_type: state.duration_type
+      })
+    }).then(r => r.json());
+
+    state.total = calcRes.total_amount;
+    state.subtotal = calcRes.subtotal;
+    state.delivery_fee = calcRes.delivery_fee;
+    state.deposit_total = calcRes.deposit_total;
+
+    document.getElementById('summary-content').innerHTML = `
+      <div class="small">
+        <div class="d-flex justify-content-between"><span>Boards:</span><span>€${state.subtotal}</span></div>
+        <div class="d-flex justify-content-between"><span>Delivery:</span><span>€${state.delivery_fee}</span></div>
+        <div class="d-flex justify-content-between text-muted"><small>Deposit (refundable):</small><small>€${state.deposit_total}</small></div>
+      </div>
+    `;
+    updateSummary();
+
+    state.step = 3;
+    updateStepIndicator();
+
+    document.getElementById('booking-wizard').innerHTML = `
+      <h3>Step 3: Your Details</h3>
+      <div class="mb-3">
+        <label class="form-label">Full Name *</label>
+        <input type="text" id="inp-name" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Phone *</label>
+        <input type="tel" id="inp-phone" class="form-control" placeholder="+34..." required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" id="inp-email" class="form-control">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">ID Document (NIE/TIE/PAS)</label>
+        <input type="text" id="inp-id" class="form-control">
+      </div>
+      <button class="btn btn-tuyyo btn-lg w-100" onclick="goStep4()">
+        Next: Payment <i class="bi bi-arrow-right"></i>
+      </button>
+    `;
+  }
+
+  async function goStep4() {
+    state.customer = {
+      full_name: document.getElementById('inp-name').value,
+      phone: document.getElementById('inp-phone').value,
+      email: document.getElementById('inp-email').value,
+      id_document: document.getElementById('inp-id').value
+    };
+
+    if (!state.customer.full_name || !state.customer.phone) {
+      alert('Name and phone are required'); return;
+    }
+
+    state.step = 4;
+    updateStepIndicator();
+
+    // Обчислюємо end_time
+    const durationHours = { '2h': 2, 'half_day': 5, 'full_day': 10, 'multi_day': 24 }[state.duration_type];
+    const endDate = new Date(new Date(state.start_time).getTime() + durationHours * 3600000);
+    state.end_time = endDate.toISOString().slice(0, 19).replace('T', ' ');
+
+    document.getElementById('booking-wizard').innerHTML = `
+      <h3>Step 4: Confirm & Pay</h3>
+      <div class="alert alert-light border">
+        <strong>Booking Details:</strong><br>
+        📅 ${state.start_time} → ${state.end_time}<br>
+        📍 ${state.items.length} board(s)<br>
+        👤 ${state.customer.full_name}
+      </div>
+
+      <div class="mb-3">
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="chk-rules">
+          <label class="form-check-label" for="chk-rules">
+            I accept the <a href="#" target="_blank">Rental Terms</a>
+          </label>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="chk-safety">
+          <label class="form-check-label" for="chk-safety">
+            I have read the <a href="#" target="_blank">Safety Instructions</a>
+          </label>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="chk-leash">
+          <label class="form-check-label" for="chk-leash">
+            I agree to mandatory use of the leash
+          </label>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="chk-deposit">
+          <label class="form-check-label" for="chk-deposit">
+            I accept the 150€ refundable deposit
+          </label>
+        </div>
+      </div>
+
+      <button class="btn btn-tuyyo btn-lg w-100" id="btn-pay" onclick="submitBooking()">
+        <i class="bi bi-lock-fill"></i> Pay €${state.total.toFixed(2)}
+      </button>
+      <small class="text-muted d-block text-center mt-2">
+        Secure payment via Stripe. Your card details are never stored on our servers.
+      </small>
+    `;
+  }
+
+  async function submitBooking() {
+    const agreed = ['chk-rules', 'chk-safety', 'chk-leash', 'chk-deposit']
+      .every(id => document.getElementById(id).checked);
+
+    if (!agreed) { alert('Please accept all terms to continue'); return; }
+
+    const btn = document.getElementById('btn-pay');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+
+    try {
+      const res = await fetch(`${API}/booking/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer: state.customer,
+          items: state.items,
+          location_id: state.location_id,
+          duration_type: state.duration_type,
+          start_time: state.start_time,
+          end_time: state.end_time,
+          payment_method: 'stripe',
+          legal_agreement: true
+        })
+      }).then(r => r.json());
+
+      if (res.success && res.redirect_url) {
+        window.location.href = res.redirect_url;
+      } else if (res.success) {
+        window.location.href = `/success.html?code=${res.booking_code}`;
+      } else {
+        alert('Error: ' + (res.error || 'Unknown error'));
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-lock-fill"></i> Pay €' + state.total.toFixed(2);
+      }
+    } catch (err) {
+      alert('Network error: ' + err.message);
+      btn.disabled = false;
+    }
+  }
+
+  function updateStepIndicator() {
+    for (let i = 1; i <= 4; i++) {
+      const el = document.getElementById(`step-ind-${i}`);
+      el.classList.remove('active', 'done');
+      if (i < state.step) el.classList.add('done');
+      else if (i === state.step) el.classList.add('active');
+    }
+  }
+</script>
+</body>
+</html>

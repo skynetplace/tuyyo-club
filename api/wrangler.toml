@@ -1,0 +1,19 @@
+name = "tuyyo-api"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "production"
+FRONTEND_URL = "https://tuyyo.com"
+API_URL = "https://api.tuyyo.com"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tuyyo-db-prod"
+database_id = "b1f20220-fb85-477e-ae01-241c7e49ef31"
+
+# [[r2_buckets]]
+# binding = "R2"
+# bucket_name = "tuyyo-media"
+# ⚠️ Розкоментувати після активації R2 через Cloudflare Dashboard

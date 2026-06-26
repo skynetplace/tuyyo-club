@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TUYYO CLUB — SUP Rental Costa Blanca</title>
+  <meta name="description" content="Premium SUP board rental in Benidorm, Altea, Calpe, Alicante. Delivery to your beach.">
+
+  <!-- SEO Meta -->
+  <meta property="og:title" content="TUYYO CLUB — SUP Rental Costa Blanca">
+  <meta property="og:description" content="Sea. Sun. Freedom. Explore Costa Blanca from the Water.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/assets/og-image.jpg">
+
+  <!-- Preload LCP -->
+  <link rel="preload" as="image" href="/assets/hero.jpg" fetchpriority="high">
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --tuyyo-turquoise: #40E0D0;
+      --tuyyo-deep-blue: #003366;
+      --tuyyo-sand: #F4A460;
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; color: var(--tuyyo-deep-blue); }
+    .hero {
+      background: linear-gradient(rgba(0,51,102,0.4), rgba(0,51,102,0.6)),
+                  url('/assets/hero.jpg') center/cover;
+      min-height: 90vh;
+      color: white;
+      display: flex;
+      align-items: center;
+    }
+    .btn-tuyyo {
+      background: var(--tuyyo-turquoise);
+      color: var(--tuyyo-deep-blue);
+      font-weight: 600;
+      border: none;
+    }
+    .btn-tuyyo:hover { background: #2bc4b6; color: var(--tuyyo-deep-blue); }
+    .price-card {
+      border: 2px solid #eee;
+      border-radius: 16px;
+      transition: all 0.3s;
+    }
+    .price-card:hover {
+      border-color: var(--tuyyo-turquoise);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0,51,102,0.1);
+    }
+    .htmx-indicator { display: none; }
+    .htmx-request .htmx-indicator { display: inline-block; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: rgba(0,51,102,0.95);">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/">🏄 TUYYO CLUB</a>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#prices">Prices</a></li>
+        <li class="nav-item"><a class="nav-link" href="#equipment">Equipment</a></li>
+        <li class="nav-item"><a class="nav-link" href="#areas">Delivery Areas</a></li>
+        <li class="nav-item"><a class="nav-link" href="#faq">FAQ</a></li>
+        <li class="nav-item ms-lg-3">
+          <a class="btn btn-tuyyo" href="/booking.html">
+            <i class="bi bi-calendar-check"></i> Book Now
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container text-center">
+    <h1 class="display-2 fw-bold mb-3" id="hero-title"
+        hx-get="https://api.tuyyo.com/api/translations/en"
+        hx-trigger="load"
+        hx-swap="innerHTML"
+        hx-target="#hero-title"
+        hx-vars="'key':'hero_title'">
+      Sea. Sun. Freedom.
+    </h1>
+    <p class="lead mb-4" id="hero-subtitle">Explore Costa Blanca from the Water</p>
+    <a href="/booking.html" class="btn btn-tuyyo btn-lg px-5 py-3">
+      <i class="bi bi-calendar-check"></i> Book Your SUP
+    </a>
+    <a href="https://wa.me/34600000000" class="btn btn-success btn-lg px-4 py-3 ms-2">
+      <i class="bi bi-whatsapp"></i> WhatsApp
+    </a>
+  </div>
+</section>
+
+<!-- PRICES -->
+<section id="prices" class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center mb-5 fw-bold">Our Prices</h2>
+    <div class="row g-4" id="inventory-list"
+         hx-get="https://api.tuyyo.com/api/inventory"
+         hx-trigger="load"
+         hx-swap="innerHTML">
+      <div class="text-center"><div class="spinner-border text-primary"></div></div>
+    </div>
+
+    <!-- Static price tiers -->
+    <div class="row g-4 mt-4">
+      <div class="col-md-3">
+        <div class="price-card p-4 text-center bg-white h-100">
+          <h3>2 Hours</h3>
+          <div class="display-5 fw-bold text-primary">35€</div>
+          <p class="text-muted">Perfect for a quick ride</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="price-card p-4 text-center bg-white h-100">
+          <h3>Half Day</h3>
+          <div class="display-5 fw-bold text-primary">40€</div>
+          <p class="text-muted">~5 hours of adventure</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="price-card p-4 text-center bg-white h-100 border-primary">
+          <h3>Full Day</h3>
+          <div class="display-5 fw-bold text-primary">50€</div>
+          <span class="badge bg-success">Best Value</span>
+          <p class="text-muted mt-2">~10 hours</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="price-card p-4 text-center bg-white h-100">
+          <h3>Multi-Day</h3>
+          <div class="display-5 fw-bold text-primary">40€<small class="fs-6">/day</small></div>
+          <p class="text-muted">For extended trips</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-info mt-4 text-center">
+      <i class="bi bi-info-circle"></i>
+      <strong>Deposit:</strong> 150€ (refundable) · <strong>Delivery:</strong> from 20€
+    </div>
+  </div>
+</section>
+
+<!-- EQUIPMENT -->
+<section id="equipment" class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-5 fw-bold">Equipment Included</h2>
+    <div class="row g-4 text-center">
+      <div class="col-md-4 col-6">
+        <i class="bi bi-water display-3 text-primary"></i>
+        <h5 class="mt-2">Premium SUP</h5>
+      </div>
+      <div class="col-md-4 col-6">
+        <i class="bi bi-arrow-left-right display-3 text-primary"></i>
+        <h5 class="mt-2">Paddle</h5>
+      </div>
+      <div class="col-md-4 col-6">
+        <i class="bi bi-link-45deg display-3 text-primary"></i>
+        <h5 class="mt-2">Leash</h5>
+      </div>
+      <div class="col-md-4 col-6">
+        <i class="bi bi-life-preserver display-3 text-primary"></i>
+        <h5 class="mt-2">Life Jacket</h5>
+      </div>
+      <div class="col-md-4 col-6">
+        <i class="bi bi-bag display-3 text-primary"></i>
+        <h5 class="mt-2">Backpack</h5>
+      </div>
+      <div class="col-md-4 col-6">
+        <i class="bi bi-fan display-3 text-primary"></i>
+        <h5 class="mt-2">Pump</h5>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DELIVERY AREAS -->
+<section id="areas" class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center mb-5 fw-bold">Delivery Areas</h2>
+    <div class="row g-3 justify-content-center" id="locations-list"
+         hx-get="https://api.tuyyo.com/api/locations"
+         hx-trigger="load"
+         hx-swap="innerHTML">
+      <div class="text-center"><div class="spinner-border text-primary"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-5 fw-bold">What Our Guests Say</h2>
+    <div class="row g-4" id="reviews-list"
+         hx-get="https://api.tuyyo.com/api/reviews"
+         hx-trigger="load"
+         hx-swap="innerHTML">
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center mb-5 fw-bold">FAQ</h2>
+    <div class="accordion" id="faqAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#f1">
+            Do I need experience?
+          </button>
+        </h2>
+        <div id="f1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">No! SUP is easy to learn. We provide a quick 10-min briefing.</div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#f2">
+            How far in advance should I book?
+          </button>
+        </h2>
+        <div id="f2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">At least 24 hours before your desired start time.</div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#f3">
+            What about the deposit?
+          </button>
+        </h2>
+        <div id="f3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">150€ refundable deposit per board. Returned when you return the equipment in good condition.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="py-5 text-white text-center" style="background: var(--tuyyo-deep-blue);">
+  <div class="container">
+    <h2 class="fw-bold">Ready for Adventure?</h2>
+    <p class="lead mb-4">Your SUP experience starts here.</p>
+    <a href="/booking.html" class="btn btn-tuyyo btn-lg px-5">Book Now</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="py-4 bg-dark text-white-50 text-center">
+  <div class="container">
+    <p class="mb-1">© 2024 TUYYO CLUB · Costa Blanca</p>
+    <p class="mb-0 small">
+      <a href="mailto:tuyyogroup@gmail.com" class="text-white-50">tuyyogroup@gmail.com</a> ·
+      <a href="/admin/" class="text-white-50">Admin</a>
+    </p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/htmx.org@2.0.3"></script>
+<script>
+  // HTMX: рендеринг інвентарю
+  document.body.addEventListener('htmx:afterSwap', (e) => {
+    if (e.detail.target.id === 'inventory-list') {
+      try {
+        const data = JSON.parse(e.detail.xhr.response);
+        e.detail.target.innerHTML = data.map(item => `
+          <div class="col-md-4">
+            <div class="price-card p-4 bg-white h-100">
+              <img src="${item.image_url || '/assets/sup-default.jpg'}"
+                   class="img-fluid rounded mb-3" alt="${item.model_name}"
+                   style="aspect-ratio: 16/10; object-fit: cover;">
+              <h4>${item.model_name}</h4>
+              <p class="text-muted small">Max ${item.max_weight_kg}kg</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="display-6 fw-bold text-primary">from ${item.price_2h}€</span>
+                <a href="/booking.html?inv=${item.id}" class="btn btn-tuyyo">Book</a>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) { console.error(err); }
+    }
+
+    if (e.detail.target.id === 'locations-list') {
+      try {
+        const data = JSON.parse(e.detail.xhr.response);
+        e.detail.target.innerHTML = data.map(loc => `
+          <div class="col-md-2 col-6">
+            <div class="bg-white p-3 rounded text-center shadow-sm">
+              <i class="bi bi-geo-alt-fill text-primary fs-3"></i>
+              <h6 class="mt-2 mb-0">${loc.name}</h6>
+              <small class="text-muted">+${loc.delivery_fee}€</small>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) { console.error(err); }
+    }
+
+    if (e.detail.target.id === 'reviews-list') {
+      try {
+        const data = JSON.parse(e.detail.xhr.response);
+        e.detail.target.innerHTML = data.slice(0, 6).map(r => `
+          <div class="col-md-4">
+            <div class="bg-white p-4 rounded shadow-sm h-100">
+              <div class="text-warning mb-2">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+              <p class="mb-2">"${r.comment}"</p>
+              <small class="text-muted">— ${r.customer_name}</small>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) { console.error(err); }
+    }
+
+    if (e.detail.target.id === 'hero-title') {
+      try {
+        const data = JSON.parse(e.detail.xhr.response);
+        e.detail.target.textContent = data.hero_title || 'Sea. Sun. Freedom.';
+        document.getElementById('hero-subtitle').textContent =
+          data.hero_subtitle || 'Explore Costa Blanca from the Water';
+      } catch (err) {}
+    }
+  });
+</script>
+</body>
+</html>
