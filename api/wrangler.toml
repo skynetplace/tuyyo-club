@@ -6,13 +6,9 @@ compatibility_flags = ["nodejs_compat"]
 [vars]
 ENVIRONMENT = "production"
 FRONTEND_URL = "https://tuyyo-club.pages.dev"
-API_URL = "https://tuyyo-api.sashka-desire.workers.dev"
+API_URL = "https://tuyyo-club.pages.dev"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "tuyyo-db-prod"
 database_id = "b1f20220-fb85-477e-ae01-241c7e49ef31"
-
-# [[r2_buckets]]
-# binding = "R2"
-# bucket_name = "tuyyo-media"
