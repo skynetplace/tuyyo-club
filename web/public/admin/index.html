@@ -42,9 +42,13 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  const API = 'https://api.tuyyo.com/admin/api';
-  // ⚠️ У production — використовуйте хедер Authorization з Cloudflare Zero Trust
-  const HEADERS = { 'Content-Type': 'application/json' };
+  const API = 'https://tuyyo-api.sashka-desire.workers.dev/admin/api';
+  // 🔐 Введіть ваш ADMIN_API_KEY тут (отримайте через: wrangler secret put ADMIN_API_KEY)
+  const ADMIN_KEY = 'tuyyo-admin-2026-secure-key';
+  const HEADERS = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${ADMIN_KEY}`
+  };
 
   async function api(path, opts = {}) {
     const res = await fetch(API + path, { ...opts, headers: { ...HEADERS, ...opts.headers } });

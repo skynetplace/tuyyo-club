@@ -18,6 +18,52 @@ import { sendNotifications } from '../lib/notify.js';
 
 export const bookingRoutes = new Hono();
 
+/**
+ * GET /api/booking/step-1
+ * Повертає HTML для першого кроку бронювання (дата, час, локація)
+ */
+bookingRoutes.get('/step-1', async (c) => {
+  const db = c.env.DB;
+  const { results: locations } = await db.prepare(
+    'SELECT id, name, delivery_fee FROM locations WHERE is_active = 1 ORDER BY name'
+  ).all();
+
+  const minDate = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+  const timeOptions = Array.from({length: 13}, (_, i) => i + 7)
+    .map(h => `<option value="${String(h).padStart(2,'0')}:00">${String(h).padStart(2,'0')}:00</option>`)
+    .join('');
+
+  return c.html(`
+    <h3>Step 1: Date & Location</h3>
+    <div class="mb-3">
+      <label class="form-label">Start Date</label>
+      <input type="date" id="inp-date" class="form-control" min="${minDate}" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Start Time</label>
+      <select id="inp-time" class="form-select">${timeOptions}</select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Duration</label>
+      <select id="inp-duration" class="form-select">
+        <option value="2h">2 Hours</option>
+        <option value="half_day">Half Day (~5h)</option>
+        <option value="full_day">Full Day (~10h)</option>
+        <option value="multi_day">Multiple Days</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Delivery Location</label>
+      <select id="inp-location" class="form-select">
+        ${locations.map(l => `<option value="${l.id}" data-fee="${l.delivery_fee}">${l.name} (+${l.delivery_fee}€)</option>`).join('')}
+      </select>
+    </div>
+    <button class="btn btn-tuyyo btn-lg w-100" onclick="goStep2()">
+      Next: Select Boards <i class="bi bi-arrow-right"></i>
+    </button>
+  `);
+});
+
 // Мапінг duration_type → ключ ціни
 const PRICE_KEY_MAP = {
   '2h': 'price_2h',

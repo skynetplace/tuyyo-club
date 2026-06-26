@@ -26,16 +26,23 @@ const app = new Hono();
 // 📝 Logger — логуємо всі запити
 app.use('*', logger());
 
-// CORS — тільки для нашого фронтенду
+// CORS — дозволяємо всі необхідні домени
 app.use('/api/*', cors({
   origin: (origin, c) => {
     const allowed = [
-      c.env.FRONTEND_URL,
       'https://tuyyo.com',
       'https://www.tuyyo.com',
-      'http://localhost:3000'
+      'https://tuyyo-club.pages.dev',
+      'https://tuyyo-api.sashka-desire.workers.dev',
+      'http://localhost:3000',
+      'http://127.0.0.1:3000'
     ];
-    return allowed.includes(origin) ? origin : allowed[0];
+    // Дозволяємо будь-який origin з цих доменів
+    if (origin && allowed.some(d => origin.startsWith(d.replace('://', '://')))) {
+      return origin;
+    }
+    // Для інших — повертаємо перший дозволений (не блокуємо)
+    return allowed[0];
   },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],

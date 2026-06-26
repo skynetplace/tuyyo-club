@@ -84,7 +84,7 @@
 <section class="hero">
   <div class="container text-center">
     <h1 class="display-2 fw-bold mb-3" id="hero-title"
-        hx-get="https://api.tuyyo.com/api/translations/en"
+        hx-get="https://tuyyo-api.sashka-desire.workers.dev/api/translations/en"
         hx-trigger="load"
         hx-swap="innerHTML"
         hx-target="#hero-title"
@@ -106,7 +106,7 @@
   <div class="container">
     <h2 class="text-center mb-5 fw-bold">Our Prices</h2>
     <div class="row g-4" id="inventory-list"
-         hx-get="https://api.tuyyo.com/api/inventory"
+         hx-get="https://tuyyo-api.sashka-desire.workers.dev/api/inventory"
          hx-trigger="load"
          hx-swap="innerHTML">
       <div class="text-center"><div class="spinner-border text-primary"></div></div>
@@ -190,7 +190,7 @@
   <div class="container">
     <h2 class="text-center mb-5 fw-bold">Delivery Areas</h2>
     <div class="row g-3 justify-content-center" id="locations-list"
-         hx-get="https://api.tuyyo.com/api/locations"
+         hx-get="https://tuyyo-api.sashka-desire.workers.dev/api/locations"
          hx-trigger="load"
          hx-swap="innerHTML">
       <div class="text-center"><div class="spinner-border text-primary"></div></div>
@@ -203,7 +203,7 @@
   <div class="container">
     <h2 class="text-center mb-5 fw-bold">What Our Guests Say</h2>
     <div class="row g-4" id="reviews-list"
-         hx-get="https://api.tuyyo.com/api/reviews"
+         hx-get="https://tuyyo-api.sashka-desire.workers.dev/api/reviews"
          hx-trigger="load"
          hx-swap="innerHTML">
     </div>

@@ -5,8 +5,8 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 ENVIRONMENT = "production"
-FRONTEND_URL = "https://tuyyo.com"
-API_URL = "https://api.tuyyo.com"
+FRONTEND_URL = "https://tuyyo-club.pages.dev"
+API_URL = "https://tuyyo-api.sashka-desire.workers.dev"
 
 [[d1_databases]]
 binding = "DB"
